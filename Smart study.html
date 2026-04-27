@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>AI Smart Study Planner – Gaurav Joshi</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap');
+
+  :root{
+    --ink:#0D0D14;
+    --paper:#F7F4EF;
+    --cream:#EDE8DF;
+    --accent:#2D6A4F;
+    --accent2:#52B788;
+    --gold:#D4A853;
+    --red:#C0392B;
+    --muted:#6B7280;
+    --card:#FFFFFF;
+    --shadow:0 4px 24px rgba(0,0,0,.08);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'DM Sans',sans-serif;background:var(--paper);color:var(--ink);min-height:100vh;}
+
+  /* ── NAV ── */
+  nav{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 3rem;background:var(--ink);position:sticky;top:0;z-index:100;}
+  .logo{font-family:'DM Serif Display',serif;font-size:1.4rem;color:var(--paper);letter-spacing:-.5px;}
+  .logo span{color:var(--accent2);}
+  .nav-links a{color:var(--cream);text-decoration:none;margin-left:2rem;font-size:.9rem;font-weight:500;transition:color .2s;}
+  .nav-links a:hover{color:var(--accent2);}
+  .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.4rem;border-radius:8px;font-weight:600;font-size:.9rem;cursor:pointer;text-decoration:none;transition:all .2s;border:none;}
+  .btn-primary{background:var(--accent);color:#fff;}
+  .btn-primary:hover{background:var(--accent2);}
+  .btn-outline{background:transparent;border:1.5px solid var(--accent2);color:var(--accent2);}
+  .btn-outline:hover{background:var(--accent2);color:#fff;}
+  .btn-danger{background:var(--red);color:#fff;}
+  .btn-danger:hover{opacity:.9;}
+
+  /* ── HERO ── */
+  .hero{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:center;padding:5rem 3rem 4rem;max-width:1200px;margin:0 auto;}
+  .hero-text h1{font-family:'DM Serif Display',serif;font-size:3.6rem;line-height:1.1;color:var(--ink);}
+  .hero-text h1 em{font-style:italic;color:var(--accent);}
+  .hero-text p{color:var(--muted);margin:1.2rem 0 2rem;font-size:1.05rem;line-height:1.7;}
+  .hero-btns{display:flex;gap:1rem;flex-wrap:wrap;}
+  .hero-card{background:var(--ink);border-radius:20px;padding:2.5rem;color:var(--paper);}
+  .hero-card h3{font-family:'DM Serif Display',serif;font-size:1.3rem;margin-bottom:1.5rem;color:var(--accent2);}
+  .stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+  .stat-box{background:rgba(255,255,255,.06);border-radius:12px;padding:1rem;text-align:center;}
+  .stat-num{font-size:2rem;font-weight:700;color:var(--gold);}
+  .stat-lbl{font-size:.75rem;color:var(--muted);margin-top:.2rem;}
+
+  /* ── MODULES OVERVIEW ── */
+  .section{padding:4rem 3rem;max-width:1200px;margin:0 auto;}
+  .section-title{font-family:'DM Serif Display',serif;font-size:2.2rem;margin-bottom:.5rem;}
+  .section-sub{color:var(--muted);margin-bottom:2.5rem;}
+  .modules-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:1.2rem;}
+  .module-card{background:var(--card);border-radius:16px;padding:1.5rem;box-shadow:var(--shadow);cursor:pointer;transition:transform .2s,box-shadow .2s;border:2px solid transparent;}
+  .module-card:hover{transform:translateY(-4px);box-shadow:0 8px 32px rgba(0,0,0,.12);border-color:var(--accent2);}
+  .module-icon{font-size:2rem;margin-bottom:.8rem;}
+  .module-card h4{font-weight:600;font-size:.95rem;margin-bottom:.4rem;}
+  .module-card p{font-size:.8rem;color:var(--muted);line-height:1.5;}
+
+  /* ── AUTH MODAL ── */
+  .modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);backdrop-filter:blur(4px);z-index:200;align-items:center;justify-content:center;}
+  .modal-overlay.open{display:flex;}
+  .modal{background:var(--card);border-radius:20px;padding:2.5rem;width:100%;max-width:420px;position:relative;animation:slideUp .3s ease;}
+  @keyframes slideUp{from{transform:translateY(30px);opacity:0;}to{transform:translateY(0);opacity:1;}}
+  .modal h2{font-family:'DM Serif Display',serif;font-size:1.8rem;margin-bottom:.3rem;}
+  .modal p{color:var(--muted);font-size:.9rem;margin-bottom:1.5rem;}
+  .form-group{margin-bottom:1rem;}
+  .form-group label{display:block;font-size:.85rem;font-weight:600;margin-bottom:.4rem;color:var(--ink);}
+  .form-group input,.form-group select,.form-group textarea{width:100%;padding:.7rem 1rem;border:1.5px solid #E5E7EB;border-radius:10px;font-size:.9rem;font-family:inherit;outline:none;transition:border .2s;}
+  .form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--accent);}
+  .modal-close{position:absolute;top:1rem;right:1rem;background:var(--cream);border:none;width:32px;height:32px;border-radius:50%;cursor:pointer;font-size:1rem;display:flex;align-items:center;justify-content:center;}
+  .switch-text{text-align:center;margin-top:1rem;font-size:.85rem;color:var(--muted);}
+  .switch-text a{color:var(--accent);cursor:pointer;font-weight:600;}
+  .error-msg{background:#FEF2F2;border:1px solid #FCA5A5;color:#DC2626;padding:.6rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:1rem;display:none;}
+
+  /* ── FOOTER ── */
+  footer{background:var(--ink);color:var(--cream);text-align:center;padding:2rem;font-size:.85rem;}
+  footer span{color:var(--accent2);}
+
+  /* ── DASHBOARD (hidden by default) ── */
+  #dashboard{display:none;}
+  #landing{display:block;}
+</style>
+</head>
+<body>
+
+<!-- ══════ LANDING ══════ -->
+<div id="landing">
+<nav>
+  <div class="logo">StudyAI <span>Planner</span></div>
+  <div class="nav-links">
+    <a href="#modules-section">Modules</a>
+    <a href="#about-section">About</a>
+  </div>
+  <div style="display:flex;gap:.8rem;">
+    <button class="btn btn-outline" onclick="openModal('login')">Login</button>
+    <button class="btn btn-primary" onclick="openModal('register')">Get Started</button>
+  </div>
+</nav>
+
+<div class="hero">
+  <div class="hero-text">
+    <h1>Study Smarter,<br/>Not <em>Harder.</em></h1>
+    <p>An AI-powered study planner that creates personalized schedules, tracks your performance, and helps you achieve your academic goals with confidence.</p>
+    <div class="hero-btns">
+      <button class="btn btn-primary" onclick="openModal('register')">Start Planning Free</button>
+      <button class="btn btn-outline" onclick="openModal('login')">Login to Dashboard</button>
+    </div>
+  </div>
+  <div class="hero-card">
+    <h3>📊 Platform Highlights</h3>
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-num">9</div><div class="stat-lbl">Smart Modules</div></div>
+      <div class="stat-box"><div class="stat-num">AI</div><div class="stat-lbl">Schedule Gen</div></div>
+      <div class="stat-box"><div class="stat-num">100%</div><div class="stat-lbl">Personalized</div></div>
+      <div class="stat-box"><div class="stat-num">∞</div><div class="stat-lbl">Mock Tests</div></div>
+    </div>
+    <br/>
+    <p style="font-size:.8rem;color:#9CA3AF;line-height:1.6;">Built for BCA students at Uttaranchal University. Developed by <strong style="color:#52B788;">Gaurav Joshi</strong> — Enrollment: UU230900140</p>
+  </div>
+</div>
+
+<div id="modules-section" class="section">
+  <div class="section-title">9 Powerful Modules</div>
+  <div class="section-sub">Everything you need for smarter academic preparation</div>
+  <div class="modules-grid">
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">🔐</div><h4>User Auth</h4><p>Secure registration & login with encrypted credentials</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">👤</div><h4>Profile Management</h4><p>Manage subjects, goals, and study preferences</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">🎯</div><h4>Goal Setting</h4><p>Set short and long-term academic targets with deadlines</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">🤖</div><h4>AI Schedule Gen</h4><p>Auto-creates personalized timetables based on your data</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">💡</div><h4>Smart Recommendations</h4><p>AI suggestions based on performance patterns</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">🔔</div><h4>Reminders</h4><p>Timely study session and exam deadline alerts</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">📝</div><h4>Mock Tests & Quizzes</h4><p>Subject-wise timed tests with instant feedback</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">📈</div><h4>Progress Dashboard</h4><p>Visual graphs for weekly and monthly improvement</p></div>
+    <div class="module-card" onclick="openModal('login')"><div class="module-icon">📋</div><h4>Report Generation</h4><p>Detailed PDF-ready performance summaries</p></div>
+  </div>
+</div>
+
+<div id="about-section" style="background:var(--ink);color:var(--paper);padding:4rem 3rem;text-align:center;">
+  <div style="max-width:700px;margin:0 auto;">
+    <div style="font-family:'DM Serif Display',serif;font-size:2rem;margin-bottom:1rem;">About This Project</div>
+    <p style="color:#9CA3AF;line-height:1.8;">This AI Smart Study Planner is a BCA 6th Semester project submitted to Uttaranchal School of Computing Sciences (USCS), Uttaranchal University, Dehradun. Developed under the guidance of <strong style="color:var(--accent2);">Ms. Dimple Choudhary</strong>, Assistant Professor.</p>
+    <br/>
+    <p style="color:#9CA3AF;">By <strong style="color:var(--gold);">Gaurav Joshi</strong> | BCA 5th "F" | Enrollment: UU230900140</p>
+  </div>
+</div>
+
+<footer>© 2025–26 <span>AI Smart Study Planner</span> · Gaurav Joshi · USCS, Uttaranchal University</footer>
+</div>
+
+<!-- ══════ AUTH MODALS ══════ -->
+<div class="modal-overlay" id="authModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <div id="loginForm">
+      <h2>Welcome Back</h2>
+      <p>Login to your study dashboard</p>
+      <div class="error-msg" id="loginError"></div>
+      <div class="form-group"><label>Email</label><input type="email" id="loginEmail" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="loginPass" placeholder="••••••••"/></div>
+      <button class="btn btn-primary" style="width:100%;" onclick="handleLogin()">Login →</button>
+      <div class="switch-text">No account? <a onclick="showRegister()">Register here</a></div>
+    </div>
+    <div id="registerForm" style="display:none;">
+      <h2>Create Account</h2>
+      <p>Start your personalized study journey</p>
+      <div class="error-msg" id="registerError"></div>
+      <div class="form-group"><label>Full Name</label><input type="text" id="regName" placeholder="Gaurav Joshi"/></div>
+      <div class="form-group"><label>Email</label><input type="email" id="regEmail" placeholder="you@example.com"/></div>
+      <div class="form-group"><label>Password</label><input type="password" id="regPass" placeholder="Create a strong password"/></div>
+      <div class="form-group"><label>Program</label>
+        <select id="regProgram"><option>BCA</option><option>BBA</option><option>B.Tech</option><option>B.Sc</option><option>Other</option></select>
+      </div>
+      <div class="form-group"><label>Semester</label>
+        <select id="regSem"><option>1st</option><option>2nd</option><option>3rd</option><option>4th</option><option>5th</option><option value="6th" selected>6th</option></select>
+      </div>
+      <button class="btn btn-primary" style="width:100%;" onclick="handleRegister()">Create Account →</button>
+      <div class="switch-text">Already registered? <a onclick="showLogin()">Login</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════ DASHBOARD ══════ -->
+<div id="dashboard">
+  <!-- Dashboard is loaded via dashboard.html equivalent injected below -->
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+//  db.js  –  LocalStorage-backed database (simulates SQLite)
+//  Tables: users, profiles, goals, schedules, tests, progress, reminders, recommendations
+// ═══════════════════════════════════════════════════════════
+
+const DB = (() => {
+  const PREFIX = 'studyai_';
+
+  // ── Low-level helpers ──────────────────────────────────────
+  const read  = key => JSON.parse(localStorage.getItem(PREFIX + key) || '[]');
+  const write = (key, val) => localStorage.setItem(PREFIX + key, JSON.stringify(val));
+  const readObj = key => JSON.parse(localStorage.getItem(PREFIX + key) || 'null');
+  const writeObj = (key, val) => localStorage.setItem(PREFIX + key, JSON.stringify(val));
+  const nextId = table => {
+    const rows = read(table);
+    return rows.length ? Math.max(...rows.map(r => r.id)) + 1 : 1;
+  };
+
+  // ── USERS table ────────────────────────────────────────────
+  const Users = {
+    findByEmail: email => read('users').find(u => u.email === email),
+    findById: id => read('users').find(u => u.id === id),
+    create: data => {
+      const users = read('users');
+      const user = { id: nextId('users'), createdAt: Date.now(), ...data };
+      users.push(user);
+      write('users', users);
+      return user;
+    },
+    update: (id, data) => {
+      const users = read('users').map(u => u.id === id ? { ...u, ...data } : u);
+      write('users', users);
+    }
+  };
+
+  // ── PROFILES table ─────────────────────────────────────────
+  const Profiles = {
+    getByUser: uid => read('profiles').find(p => p.userId === uid),
+    save: data => {
+      const profiles = read('profiles').filter(p => p.userId !== data.userId);
+      profiles.push({ ...data, updatedAt: Date.now() });
+      write('profiles', profiles);
+    }
+  };
+
+  // ── GOALS table ────────────────────────────────────────────
+  const Goals = {
+    getByUser: uid => read('goals').filter(g => g.userId === uid),
+    create: data => {
+      const goals = read('goals');
+      const goal = { id: nextId('goals'), createdAt: Date.now(), completed: false, ...data };
+      goals.push(goal);
+      write('goals', goals);
+      return goal;
+    },
+    toggle: (id, uid) => {
+      const goals = read('goals').map(g =>
+        g.id === id && g.userId === uid ? { ...g, completed: !g.completed } : g);
+      write('goals', goals);
+    },
+    delete: (id, uid) => {
+      write('goals', read('goals').filter(g => !(g.id === id && g.userId === uid)));
+    }
+  };
+
+  // ── SCHEDULES table ────────────────────────────────────────
+  const Schedules = {
+    getByUser: uid => read('schedules').filter(s => s.userId === uid),
+    save: (uid, items) => {
+      const others = read('schedules').filter(s => s.userId !== uid);
+      const newItems = items.map((it, i) => ({ ...it, id: i + 1, userId: uid }));
+      write('schedules', [...others, ...newItems]);
+    },
+    toggleDone: (uid, id) => {
+      const schedules = read('schedules').map(s =>
+        s.userId === uid && s.id === id ? { ...s, done: !s.done } : s);
+      write('schedules', schedules);
+    }
+  };
+
+  // ── TESTS / QUIZZES table ──────────────────────────────────
+  const Tests = {
+    getByUser: uid => read('tests').filter(t => t.userId === uid),
+    save: data => {
+      const tests = read('tests');
+      tests.push({ id: nextId('tests'), createdAt: Date.now(), ...data });
+      write('tests', tests);
+      return tests[tests.length - 1];
+    }
+  };
+
+  // ── PROGRESS table ─────────────────────────────────────────
+  const Progress = {
+    getByUser: uid => read('progress').filter(p => p.userId === uid),
+    log: data => {
+      const progress = read('progress');
+      progress.push({ id: nextId('progress'), createdAt: Date.now(), ...data });
+      write('progress', progress);
+    }
+  };
+
+  // ── REMINDERS table ────────────────────────────────────────
+  const Reminders = {
+    getByUser: uid => read('reminders').filter(r => r.userId === uid),
+    create: data => {
+      const reminders = read('reminders');
+      const r = { id: nextId('reminders'), done: false, createdAt: Date.now(), ...data };
+      reminders.push(r);
+      write('reminders', reminders);
+      return r;
+    },
+    dismiss: (id, uid) => {
+      write('reminders', read('reminders').map(r =>
+        r.id === id && r.userId === uid ? { ...r, done: true } : r));
+    },
+    delete: (id, uid) => {
+      write('reminders', read('reminders').filter(r => !(r.id === id && r.userId === uid)));
+    }
+  };
+
+  // ── RECOMMENDATIONS cache ──────────────────────────────────
+  const Recommendations = {
+    getByUser: uid => read('recommendations').filter(r => r.userId === uid),
+    set: (uid, items) => {
+      const others = read('recommendations').filter(r => r.userId !== uid);
+      write('recommendations', [...others, ...items.map(it => ({ ...it, userId: uid }))]);
+    }
+  };
+
+  // ── SESSION (current user) ─────────────────────────────────
+  const Session = {
+    get: () => readObj('session'),
+    set: user => writeObj('session', user),
+    clear: () => localStorage.removeItem(PREFIX + 'session')
+  };
+
+  return { Users, Profiles, Goals, Schedules, Tests, Progress, Reminders, Recommendations, Session };
+})();
+
+</script>
+<script>
+// ═══════════════════════════════════════════════
+//  auth.js  –  Authentication & session logic
+// ═══════════════════════════════════════════════
+
+// Simple hash (for demo – in production use bcrypt server-side)
+function simpleHash(str) {
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash) + str.charCodeAt(i);
+    hash |= 0;
+  }
+  return hash.toString(16);
+}
+
+function openModal(type) {
+  document.getElementById('authModal').classList.add('open');
+  if (type === 'login') showLogin();
+  else showRegister();
+}
+function closeModal() {
+  document.getElementById('authModal').classList.remove('open');
+}
+function showLogin() {
+  document.getElementById('loginForm').style.display = 'block';
+  document.getElementById('registerForm').style.display = 'none';
+}
+function showRegister() {
+  document.getElementById('loginForm').style.display = 'none';
+  document.getElementById('registerForm').style.display = 'block';
+}
+
+function showError(id, msg) {
+  const el = document.getElementById(id);
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+function hideError(id) {
+  document.getElementById(id).style.display = 'none';
+}
+
+function handleLogin() {
+  hideError('loginError');
+  const email = document.getElementById('loginEmail').value.trim();
+  const pass  = document.getElementById('loginPass').value;
+  if (!email || !pass) return showError('loginError', 'Please fill all fields.');
+  const user = DB.Users.findByEmail(email);
+  if (!user || user.passwordHash !== simpleHash(pass)) {
+    return showError('loginError', 'Invalid email or password.');
+  }
+  DB.Session.set(user);
+  closeModal();
+  loadDashboard(user);
+}
+
+function handleRegister() {
+  hideError('registerError');
+  const name    = document.getElementById('regName').value.trim();
+  const email   = document.getElementById('regEmail').value.trim();
+  const pass    = document.getElementById('regPass').value;
+  const program = document.getElementById('regProgram').value;
+  const sem     = document.getElementById('regSem').value;
+  if (!name || !email || !pass) return showError('registerError', 'All fields are required.');
+  if (pass.length < 6) return showError('registerError', 'Password must be at least 6 characters.');
+  if (DB.Users.findByEmail(email)) return showError('registerError', 'Email already registered.');
+  const user = DB.Users.create({ name, email, passwordHash: simpleHash(pass), program, semester: sem });
+  DB.Session.set(user);
+  closeModal();
+  loadDashboard(user);
+}
+
+// Auto-login if session exists
+window.addEventListener('DOMContentLoaded', () => {
+  const session = DB.Session.get();
+  if (session) loadDashboard(session);
+});
+
+</script>
+<script>
+// ══════════════════════════════════════════════════════════════
+//  app.js  –  Full dashboard with all 9 modules
+// ══════════════════════════════════════════════════════════════
+
+let currentUser = null;
+let activeModule = 'overview';
+
+const MODULES = [
+  { id:'overview',         icon:'🏠', label:'Overview' },
+  { id:'profile',          icon:'👤', label:'My Profile' },
+  { id:'goals',            icon:'🎯', label:'Goals' },
+  { id:'schedule',         icon:'🤖', label:'AI Schedule' },
+  { id:'recommendations',  icon:'💡', label:'Recommendations' },
+  { id:'reminders',        icon:'🔔', label:'Reminders' },
+  { id:'quiz',             icon:'📝', label:'Mock Tests' },
+  { id:'progress',         icon:'📈', label:'Progress' },
+  { id:'report',           icon:'📋', label:'Reports' },
+];
+
+const SUBJECTS = ['Mathematics','Physics','Chemistry','Biology','English','Computer Science','History','Geography','Economics','Accounts'];
+const QUIZ_BANK = {
+  'Computer Science': [
+    {q:'What does CPU stand for?', opts:['Central Processing Unit','Computer Power Unit','Central Power Unit','Core Processing Unit'], ans:0},
+    {q:'Which data structure uses LIFO?', opts:['Queue','Stack','Array','LinkedList'], ans:1},
+    {q:'What is the output of 2**10 in Python?', opts:['20','100','1024','512'], ans:2},
+    {q:'HTML stands for?', opts:['Hyper Text Markup Language','High Text Machine Language','Hyper Transfer Markup Language','None'], ans:0},
+    {q:'Which is NOT a programming language?', opts:['Java','Python','HTML','C++'], ans:2},
+  ],
+  'Mathematics': [
+    {q:'What is √144?', opts:['11','12','13','14'], ans:1},
+    {q:'What is 15% of 200?', opts:['25','30','35','40'], ans:1},
+    {q:'Sum of angles in a triangle?', opts:['90°','180°','270°','360°'], ans:1},
+    {q:'What is log₁₀(1000)?', opts:['2','3','4','10'], ans:1},
+    {q:'Area of circle with r=7 (π≈22/7)?', opts:['154','144','164','174'], ans:0},
+  ],
+  'Physics': [
+    {q:'SI unit of force?', opts:['Watt','Joule','Newton','Pascal'], ans:2},
+    {q:'Speed of light ≈?', opts:['3×10⁶ m/s','3×10⁸ m/s','3×10¹⁰ m/s','3×10⁴ m/s'], ans:1},
+    {q:'Which has more inertia?', opts:['Feather','Book','Stone','Ball'], ans:2},
+    {q:'Unit of electric current?', opts:['Volt','Ohm','Ampere','Watt'], ans:2},
+    {q:'F = ma is Newton\'s __ law?', opts:['First','Second','Third','Fourth'], ans:1},
+  ],
+};
+// Default quiz for subjects without bank
+const DEFAULT_QUIZ = [
+  {q:'Which is a primary source of information?', opts:['Textbook','Wikipedia','YouTube','Friend'], ans:0},
+  {q:'What is active recall?', opts:['Reading notes','Testing yourself','Highlighting','Copying text'], ans:1},
+  {q:'Pomodoro technique uses how many minutes?', opts:['15','25','45','60'], ans:1},
+  {q:'What helps long-term memory?', opts:['Cramming','Spaced repetition','All-nighters','Reading once'], ans:1},
+  {q:'Best time to review notes?', opts:['A week later','A month later','Within 24hrs','Never'], ans:2},
+];
+
+// ── LOAD DASHBOARD ──────────────────────────────────────────
+function loadDashboard(user) {
+  currentUser = user;
+  document.getElementById('landing').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  document.getElementById('dashboard').innerHTML = buildDashboardShell(user);
+  switchModule('overview');
+}
+
+function buildDashboardShell(user) {
+  const initials = user.name.split(' ').map(n=>n[0]).join('').toUpperCase().slice(0,2);
+  const navItems = MODULES.map(m => `
+    <li class="nav-item" id="nav-${m.id}" onclick="switchModule('${m.id}')">
+      <span class="nav-icon">${m.icon}</span>
+      <span class="nav-label">${m.label}</span>
+    </li>`).join('');
+
+  return `
+  <style>
+    .dash-shell{display:flex;min-height:100vh;font-family:'DM Sans',sans-serif;}
+    .sidebar{width:240px;background:#0D0D14;color:#F7F4EF;display:flex;flex-direction:column;position:fixed;top:0;left:0;height:100vh;z-index:50;}
+    .sidebar-logo{padding:1.5rem 1.5rem 1rem;font-family:'DM Serif Display',serif;font-size:1.2rem;color:#52B788;border-bottom:1px solid rgba(255,255,255,.1);}
+    .sidebar-user{padding:1rem 1.5rem;display:flex;align-items:center;gap:.8rem;border-bottom:1px solid rgba(255,255,255,.1);}
+    .avatar{width:36px;height:36px;border-radius:50%;background:#2D6A4F;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.85rem;flex-shrink:0;}
+    .user-info{font-size:.8rem;line-height:1.4;overflow:hidden;}
+    .user-name{font-weight:600;color:#F7F4EF;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+    .user-prog{color:#6B7280;font-size:.75rem;}
+    .nav-list{list-style:none;padding:1rem 0;flex:1;overflow-y:auto;}
+    .nav-item{display:flex;align-items:center;gap:.8rem;padding:.7rem 1.5rem;cursor:pointer;font-size:.88rem;color:#9CA3AF;transition:all .2s;border-left:3px solid transparent;}
+    .nav-item:hover{color:#F7F4EF;background:rgba(255,255,255,.05);}
+    .nav-item.active{color:#52B788;background:rgba(82,183,136,.1);border-left-color:#52B788;}
+    .nav-icon{font-size:1.1rem;width:20px;text-align:center;}
+    .sidebar-footer{padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,.1);}
+    .main-content{margin-left:240px;flex:1;background:#F7F4EF;min-height:100vh;}
+    .topbar{background:#fff;padding:1rem 2rem;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #E5E7EB;position:sticky;top:0;z-index:40;}
+    .topbar-title{font-family:'DM Serif Display',serif;font-size:1.4rem;}
+    .topbar-actions{display:flex;gap:.8rem;align-items:center;}
+    .module-body{padding:2rem;}
+    /* Cards */
+    .card{background:#fff;border-radius:16px;padding:1.5rem;box-shadow:0 2px 12px rgba(0,0,0,.06);margin-bottom:1.2rem;}
+    .card-title{font-weight:700;font-size:1rem;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem;}
+    /* Grid */
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.2rem;}
+    .grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;}
+    /* Stat cards */
+    .stat-card{background:#fff;border-radius:14px;padding:1.2rem;box-shadow:0 2px 12px rgba(0,0,0,.06);text-align:center;}
+    .stat-card .num{font-size:2rem;font-weight:800;color:#2D6A4F;}
+    .stat-card .lbl{font-size:.8rem;color:#6B7280;margin-top:.2rem;}
+    /* Buttons */
+    .btn{display:inline-flex;align-items:center;gap:.4rem;padding:.6rem 1.2rem;border-radius:8px;font-weight:600;font-size:.85rem;cursor:pointer;border:none;transition:all .2s;font-family:inherit;}
+    .btn-primary{background:#2D6A4F;color:#fff;} .btn-primary:hover{background:#52B788;}
+    .btn-sm{padding:.4rem .9rem;font-size:.8rem;}
+    .btn-red{background:#C0392B;color:#fff;} .btn-red:hover{opacity:.9;}
+    .btn-outline{background:transparent;border:1.5px solid #2D6A4F;color:#2D6A4F;}
+    .btn-outline:hover{background:#2D6A4F;color:#fff;}
+    .btn-gold{background:#D4A853;color:#fff;} .btn-gold:hover{opacity:.9;}
+    /* Form */
+    .fg{margin-bottom:1rem;}
+    .fg label{display:block;font-size:.82rem;font-weight:600;margin-bottom:.35rem;color:#374151;}
+    .fg input,.fg select,.fg textarea{width:100%;padding:.65rem .9rem;border:1.5px solid #E5E7EB;border-radius:10px;font-size:.88rem;font-family:inherit;outline:none;transition:border .2s;}
+    .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:#2D6A4F;}
+    /* Tags */
+    .tag{display:inline-block;padding:.25rem .7rem;border-radius:20px;font-size:.75rem;font-weight:600;margin:.2rem;}
+    .tag-green{background:#D1FAE5;color:#065F46;}
+    .tag-red{background:#FEE2E2;color:#991B1B;}
+    .tag-blue{background:#DBEAFE;color:#1E40AF;}
+    .tag-gold{background:#FEF3C7;color:#92400E;}
+    /* Progress bar */
+    .prog-bar{background:#E5E7EB;border-radius:100px;height:8px;overflow:hidden;}
+    .prog-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,#2D6A4F,#52B788);transition:width .5s;}
+    /* Table */
+    table{width:100%;border-collapse:collapse;font-size:.85rem;}
+    th{background:#F9FAFB;padding:.7rem 1rem;text-align:left;font-size:.8rem;color:#6B7280;border-bottom:1px solid #E5E7EB;}
+    td{padding:.7rem 1rem;border-bottom:1px solid #F3F4F6;}
+    tr:hover td{background:#FAFAFA;}
+    /* Badge */
+    .badge{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;border-radius:50%;background:#C0392B;color:#fff;font-size:.65rem;font-weight:700;}
+    /* Timetable grid */
+    .timetable{display:grid;gap:.6rem;}
+    .tt-row{display:flex;align-items:center;gap:.8rem;background:#fff;border-radius:12px;padding:.8rem 1rem;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+    .tt-time{font-size:.75rem;color:#6B7280;width:80px;flex-shrink:0;font-weight:600;}
+    .tt-subject{flex:1;font-weight:600;font-size:.88rem;}
+    .tt-topic{font-size:.78rem;color:#6B7280;flex:1;}
+    .tt-done{width:28px;height:28px;border-radius:50%;border:2px solid #E5E7EB;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0;}
+    .tt-done.checked{background:#2D6A4F;border-color:#2D6A4F;color:#fff;}
+    /* Quiz */
+    .quiz-opt{display:block;width:100%;text-align:left;padding:.8rem 1rem;border:1.5px solid #E5E7EB;border-radius:10px;cursor:pointer;margin-bottom:.5rem;font-size:.88rem;font-family:inherit;background:#fff;transition:all .2s;}
+    .quiz-opt:hover{border-color:#2D6A4F;background:#F0FDF4;}
+    .quiz-opt.correct{background:#D1FAE5;border-color:#065F46;color:#065F46;}
+    .quiz-opt.wrong{background:#FEE2E2;border-color:#991B1B;color:#991B1B;}
+    /* Chart bars */
+    .bar-chart{display:flex;align-items:flex-end;gap:.5rem;height:120px;padding:.5rem 0;}
+    .bar-wrap{flex:1;display:flex;flex-direction:column;align-items:center;gap:.3rem;}
+    .bar{width:100%;border-radius:6px 6px 0 0;background:linear-gradient(180deg,#52B788,#2D6A4F);transition:height .5s;}
+    .bar-lbl{font-size:.7rem;color:#6B7280;}
+    .bar-val{font-size:.7rem;font-weight:700;color:#2D6A4F;}
+    /* Donut placeholder */
+    .donut{width:100px;height:100px;border-radius:50%;background:conic-gradient(#2D6A4F var(--pct,50%),#E5E7EB 0);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.9rem;color:#2D6A4F;}
+    /* Responsive */
+    @media(max-width:768px){
+      .sidebar{width:60px;}.sidebar-logo,.nav-label,.user-info,.sidebar-footer .btn{display:none;}
+      .main-content{margin-left:60px;}.grid4,.grid3{grid-template-columns:1fr 1fr;}.grid2{grid-template-columns:1fr;}
+    }
+    /* Animations */
+    .fade-in{animation:fadeIn .3s ease;}
+    @keyframes fadeIn{from{opacity:0;transform:translateY(12px);}to{opacity:1;transform:translateY(0);}}
+    /* Alert */
+    .alert{padding:.8rem 1rem;border-radius:10px;font-size:.85rem;margin-bottom:1rem;}
+    .alert-success{background:#D1FAE5;color:#065F46;border:1px solid #A7F3D0;}
+    .alert-info{background:#DBEAFE;color:#1E40AF;border:1px solid #BFDBFE;}
+    /* Priority badge */
+    .pri-high{color:#DC2626;font-weight:700;} .pri-med{color:#D97706;font-weight:700;} .pri-low{color:#059669;font-weight:700;}
+  </style>
+
+  <div class="dash-shell">
+    <aside class="sidebar">
+      <div class="sidebar-logo">📚 StudyAI</div>
+      <div class="sidebar-user">
+        <div class="avatar">${initials}</div>
+        <div class="user-info">
+          <div class="user-name">${user.name}</div>
+          <div class="user-prog">${user.program} · ${user.semester} Sem</div>
+        </div>
+      </div>
+      <ul class="nav-list">${navItems}</ul>
+      <div class="sidebar-footer">
+        <button class="btn btn-red btn-sm" style="width:100%;" onclick="logout()">🚪 Logout</button>
+      </div>
+    </aside>
+
+    <main class="main-content">
+      <div class="topbar">
+        <div class="topbar-title" id="topbarTitle">Overview</div>
+        <div class="topbar-actions">
+          <span style="font-size:.8rem;color:#6B7280;">👋 Welcome, ${user.name.split(' ')[0]}</span>
+          <div class="badge" id="notifBadge" style="display:none;"></div>
+        </div>
+      </div>
+      <div class="module-body" id="moduleContent"></div>
+    </main>
+  </div>`;
+}
+
+// ── MODULE ROUTER ───────────────────────────────────────────
+function switchModule(id) {
+  activeModule = id;
+  MODULES.forEach(m => {
+    const el = document.getElementById('nav-' + m.id);
+    if (el) el.classList.toggle('active', m.id === id);
+  });
+  const mod = MODULES.find(m => m.id === id);
+  const title = document.getElementById('topbarTitle');
+  if (title && mod) title.textContent = mod.icon + ' ' + mod.label;
+  const content = document.getElementById('moduleContent');
+  if (!content) return;
+  content.innerHTML = '';
+  const fns = { overview:renderOverview, profile:renderProfile, goals:renderGoals,
+    schedule:renderSchedule, recommendations:renderRecommendations, reminders:renderReminders,
+    quiz:renderQuiz, progress:renderProgress, report:renderReport };
+  if (fns[id]) fns[id](content);
+  updateNotifBadge();
+}
+
+function updateNotifBadge() {
+  const pending = DB.Reminders.getByUser(currentUser.id).filter(r => !r.done).length;
+  const badge = document.getElementById('notifBadge');
+  if (!badge) return;
+  badge.textContent = pending;
+  badge.style.display = pending ? 'flex' : 'none';
+}
+
+// ── 1. OVERVIEW ─────────────────────────────────────────────
+function renderOverview(el) {
+  const goals     = DB.Goals.getByUser(currentUser.id);
+  const schedule  = DB.Schedules.getByUser(currentUser.id);
+  const tests     = DB.Tests.getByUser(currentUser.id);
+  const reminders = DB.Reminders.getByUser(currentUser.id).filter(r => !r.done);
+  const done      = schedule.filter(s => s.done).length;
+  const avgScore  = tests.length ? Math.round(tests.reduce((a,t) => a + t.pct, 0) / tests.length) : 0;
+  const completedGoals = goals.filter(g => g.completed).length;
+
+  el.innerHTML = `<div class="fade-in">
+  <div class="grid4" style="margin-bottom:1.5rem;">
+    <div class="stat-card"><div class="num">${goals.length}</div><div class="lbl">🎯 Total Goals</div></div>
+    <div class="stat-card"><div class="num">${done}/${schedule.length}</div><div class="lbl">📅 Tasks Done Today</div></div>
+    <div class="stat-card"><div class="num">${avgScore}%</div><div class="lbl">📝 Avg Test Score</div></div>
+    <div class="stat-card"><div class="num">${reminders.length}</div><div class="lbl">🔔 Pending Reminders</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">🎯 Goal Progress</div>
+      ${goals.length === 0 ? '<p style="color:#9CA3AF;font-size:.85rem;">No goals set yet. <a href="#" onclick="switchModule(\'goals\')" style="color:#2D6A4F;">Add your first goal →</a></p>' : ''}
+      ${goals.slice(0,5).map(g => `
+        <div style="margin-bottom:.8rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.83rem;margin-bottom:.3rem;">
+            <span style="font-weight:600;">${g.title}</span>
+            <span class="${g.completed ? 'tag-green tag' : 'tag-gold tag'}">${g.completed ? '✓ Done' : g.priority + ' priority'}</span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${g.completed ? 100 : 40}%"></div></div>
+        </div>`).join('')}
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Today's Schedule</div>
+      ${schedule.length === 0 ? '<p style="color:#9CA3AF;font-size:.85rem;">No schedule yet. <a href="#" onclick="switchModule(\'schedule\')" style="color:#2D6A4F;">Generate AI Schedule →</a></p>' : ''}
+      ${schedule.slice(0,5).map(s => `
+        <div class="tt-row" style="margin-bottom:.4rem;">
+          <div class="tt-time">${s.time}</div>
+          <div class="tt-subject">${s.subject}</div>
+          <div class="tt-topic">${s.topic}</div>
+          <div class="tt-done ${s.done ? 'checked' : ''}">${s.done ? '✓' : ''}</div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📝 Recent Test Scores</div>
+      ${tests.length === 0 ? '<p style="color:#9CA3AF;font-size:.85rem;">No tests taken. <a href="#" onclick="switchModule(\'quiz\')" style="color:#2D6A4F;">Take a quiz →</a></p>' :
+        `<div class="bar-chart">${tests.slice(-7).map(t=>`
+        <div class="bar-wrap">
+          <div class="bar-val">${t.pct}%</div>
+          <div class="bar" style="height:${Math.max(12, t.pct)}px;"></div>
+          <div class="bar-lbl">${t.subject.slice(0,3)}</div>
+        </div>`).join('')}</div>`}
+    </div>
+    <div class="card">
+      <div class="card-title">🔔 Upcoming Reminders</div>
+      ${reminders.length === 0 ? '<p style="color:#9CA3AF;font-size:.85rem;">All clear! No pending reminders.</p>' : ''}
+      ${reminders.slice(0,5).map(r => `
+        <div style="display:flex;justify-content:space-between;align-items:center;padding:.5rem 0;border-bottom:1px solid #F3F4F6;">
+          <div>
+            <div style="font-size:.85rem;font-weight:600;">${r.title}</div>
+            <div style="font-size:.75rem;color:#9CA3AF;">${r.datetime}</div>
+          </div>
+          <button class="btn btn-sm btn-outline" onclick="dismissReminder(${r.id})">✓</button>
+        </div>`).join('')}
+    </div>
+  </div>
+  </div>`;
+}
+
+// ── 2. PROFILE ──────────────────────────────────────────────
+function renderProfile(el) {
+  const profile = DB.Profiles.getByUser(currentUser.id) || {};
+  el.innerHTML = `<div class="fade-in">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">👤 Personal Information</div>
+      <div class="fg"><label>Full Name</label><input id="pName" value="${currentUser.name}"/></div>
+      <div class="fg"><label>Email</label><input id="pEmail" value="${currentUser.email}" readonly style="background:#F9FAFB;"/></div>
+      <div class="fg"><label>Program</label>
+        <select id="pProg">${['BCA','BBA','B.Tech','B.Sc','Other'].map(p=>`<option${p===currentUser.program?' selected':''}>${p}</option>`).join('')}</select>
+      </div>
+      <div class="fg"><label>Semester</label>
+        <select id="pSem">${['1st','2nd','3rd','4th','5th','6th'].map(s=>`<option${s===currentUser.semester?' selected':''}>${s}</option>`).join('')}</select>
+      </div>
+      <div class="fg"><label>Enrollment No.</label><input id="pEnroll" value="${profile.enrollment||''}"/></div>
+      <button class="btn btn-primary" onclick="saveProfile()">💾 Save Changes</button>
+      <div id="profileMsg" style="margin-top:.7rem;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📚 Academic Preferences</div>
+      <div class="fg"><label>My Subjects (select all)</label>
+        <div style="display:flex;flex-wrap:wrap;gap:.4rem;padding:.5rem 0;">
+          ${SUBJECTS.map(s=>`
+          <label style="display:flex;align-items:center;gap:.3rem;font-size:.82rem;cursor:pointer;">
+            <input type="checkbox" value="${s}" ${(profile.subjects||[]).includes(s)?'checked':''} class="subj-chk"/>
+            ${s}
+          </label>`).join('')}
+        </div>
+      </div>
+      <div class="fg"><label>Daily Study Hours</label>
+        <select id="pHours">
+          ${[2,3,4,5,6,8].map(h=>`<option${h===(profile.studyHours||4)?' selected':''}>${h}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label>Learning Speed</label>
+        <select id="pSpeed">
+          ${['Slow','Normal','Fast'].map(s=>`<option${s===(profile.speed||'Normal')?' selected':''}>${s}</option>`).join('')}
+        </select>
+      </div>
+      <div class="fg"><label>Exam Target Date</label>
+        <input type="date" id="pExam" value="${profile.examDate||''}"/>
+      </div>
+      <div class="fg"><label>Weak Subjects</label>
+        <input id="pWeak" placeholder="e.g. Mathematics, Physics" value="${profile.weakSubjects||''}"/>
+      </div>
+      <button class="btn btn-primary" onclick="saveProfile()">💾 Save Preferences</button>
+    </div>
+  </div>
+  </div>`;
+}
+
+function saveProfile() {
+  const subjects = [...document.querySelectorAll('.subj-chk:checked')].map(c => c.value);
+  DB.Profiles.save({
+    userId: currentUser.id,
+    enrollment: document.getElementById('pEnroll').value,
+    subjects,
+    studyHours: +document.getElementById('pHours').value,
+    speed: document.getElementById('pSpeed').value,
+    examDate: document.getElementById('pExam').value,
+    weakSubjects: document.getElementById('pWeak').value,
+  });
+  DB.Users.update(currentUser.id, {
+    name: document.getElementById('pName').value,
+    program: document.getElementById('pProg').value,
+    semester: document.getElementById('pSem').value,
+  });
+  currentUser = DB.Users.findById(currentUser.id);
+  DB.Session.set(currentUser);
+  const msg = document.getElementById('profileMsg');
+  if (msg) { msg.innerHTML = '<div class="alert alert-success">✅ Profile saved successfully!</div>'; setTimeout(()=>msg.innerHTML='', 3000); }
+}
+
+// ── 3. GOALS ────────────────────────────────────────────────
+function renderGoals(el) {
+  const goals = DB.Goals.getByUser(currentUser.id);
+  el.innerHTML = `<div class="fade-in">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">➕ Add New Goal</div>
+      <div class="fg"><label>Goal Title</label><input id="gTitle" placeholder="e.g. Complete Mathematics Syllabus"/></div>
+      <div class="fg"><label>Type</label>
+        <select id="gType"><option>Short-term</option><option>Long-term</option></select>
+      </div>
+      <div class="fg"><label>Priority</label>
+        <select id="gPri"><option>High</option><option>Medium</option><option>Low</option></select>
+      </div>
+      <div class="fg"><label>Target Date</label><input type="date" id="gDate"/></div>
+      <div class="fg"><label>Description</label>
+        <textarea id="gDesc" rows="2" placeholder="Brief description..."></textarea>
+      </div>
+      <button class="btn btn-primary" onclick="addGoal()">🎯 Add Goal</button>
+      <div id="goalMsg" style="margin-top:.7rem;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 My Goals (${goals.length})</div>
+      ${goals.length === 0 ? '<div class="alert alert-info">No goals yet. Add your first goal to get started!</div>' :
+        goals.map(g => `
+        <div style="border:1.5px solid ${g.completed ? '#A7F3D0':'#E5E7EB'};border-radius:12px;padding:1rem;margin-bottom:.8rem;background:${g.completed ? '#F0FDF4':'#fff'};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div style="flex:1;">
+              <div style="font-weight:700;font-size:.9rem;${g.completed ? 'text-decoration:line-through;color:#9CA3AF;':''}">${g.title}</div>
+              <div style="font-size:.75rem;color:#9CA3AF;margin-top:.2rem;">${g.type} · Due: ${g.deadline||'N/A'}</div>
+              ${g.description ? `<div style="font-size:.8rem;color:#6B7280;margin-top:.3rem;">${g.description}</div>` : ''}
+              <div style="margin-top:.4rem;">
+                <span class="${g.priority==='High'?'tag-red':g.priority==='Medium'?'tag-gold':'tag-green'} tag">${g.priority}</span>
+                <span class="${g.completed ? 'tag-green' : 'tag-blue'} tag">${g.completed ? '✓ Completed' : 'In Progress'}</span>
+              </div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:.4rem;margin-left:.5rem;">
+              <button class="btn btn-sm ${g.completed ? 'btn-outline' : 'btn-primary'}" onclick="toggleGoal(${g.id})">${g.completed ? '↩ Undo' : '✓ Done'}</button>
+              <button class="btn btn-sm btn-red" onclick="deleteGoal(${g.id})">🗑</button>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>
+  </div>`;
+}
+
+function addGoal() {
+  const title = document.getElementById('gTitle').value.trim();
+  if (!title) return;
+  DB.Goals.create({
+    userId: currentUser.id, title,
+    type: document.getElementById('gType').value,
+    priority: document.getElementById('gPri').value,
+    deadline: document.getElementById('gDate').value,
+    description: document.getElementById('gDesc').value,
+  });
+  renderGoals(document.getElementById('moduleContent'));
+}
+function toggleGoal(id) { DB.Goals.toggle(id, currentUser.id); renderGoals(document.getElementById('moduleContent')); }
+function deleteGoal(id) { if(confirm('Delete this goal?')) { DB.Goals.delete(id, currentUser.id); renderGoals(document.getElementById('moduleContent')); } }
+
+// ── 4. AI SCHEDULE ──────────────────────────────────────────
+function renderSchedule(el) {
+  const profile  = DB.Profiles.getByUser(currentUser.id) || {};
+  const schedule = DB.Schedules.getByUser(currentUser.id);
+  const subjects = profile.subjects && profile.subjects.length ? profile.subjects : ['Mathematics','Physics','English'];
+  const hours    = profile.studyHours || 4;
+
+  el.innerHTML = `<div class="fade-in">
+  <div class="card">
+    <div class="card-title">🤖 AI Schedule Generator</div>
+    <p style="font-size:.85rem;color:#6B7280;margin-bottom:1rem;">Generate a personalized timetable based on your subjects and available time.</p>
+    <div style="display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-end;">
+      <div class="fg" style="flex:1;min-width:180px;margin:0;">
+        <label>Study Start Time</label>
+        <input type="time" id="startTime" value="08:00"/>
+      </div>
+      <div class="fg" style="flex:1;min-width:180px;margin:0;">
+        <label>Daily Hours Available</label>
+        <select id="aiHours">${[2,3,4,5,6,8].map(h=>`<option${h===hours?' selected':''}>${h}</option>`).join('')}</select>
+      </div>
+      <div class="fg" style="flex:1;min-width:180px;margin:0;">
+        <label>Focus (Weak Subject)</label>
+        <select id="aiFocus"><option value="">Balanced</option>${subjects.map(s=>`<option>${s}</option>`).join('')}</select>
+      </div>
+      <button class="btn btn-primary" onclick="generateSchedule()">⚡ Generate Schedule</button>
+    </div>
+  </div>
+
+  <div id="scheduleOutput">
+    ${schedule.length === 0 ? '<div class="alert alert-info" style="margin-top:1rem;">Click "Generate Schedule" to create your AI-powered timetable.</div>' : renderScheduleRows(schedule)}
+  </div>
+  </div>`;
+}
+
+const TOPICS = {
+  'Mathematics':['Algebra','Calculus','Statistics','Trigonometry','Number Theory'],
+  'Physics':['Mechanics','Thermodynamics','Optics','Electrostatics','Modern Physics'],
+  'Chemistry':['Organic Chemistry','Inorganic Chemistry','Physical Chemistry','Electrochemistry','Polymers'],
+  'Biology':['Cell Biology','Genetics','Ecology','Human Physiology','Evolution'],
+  'English':['Grammar','Writing','Reading Comprehension','Literature','Vocabulary'],
+  'Computer Science':['Data Structures','Algorithms','DBMS','OS','Networking'],
+  'History':['Ancient History','Medieval History','Modern History','World War','Revolutions'],
+  'Geography':['Physical Geography','Human Geography','Maps','Climate','Resources'],
+  'Economics':['Micro Economics','Macro Economics','Money & Banking','International Trade','Development'],
+  'Accounts':['Journal Entries','Ledger','Balance Sheet','Trial Balance','Ratio Analysis'],
+};
+const DEFAULT_TOPICS = ['Introduction','Core Concepts','Practice Problems','Revision','Mock Test'];
+
+function generateSchedule() {
+  const profile  = DB.Profiles.getByUser(currentUser.id) || {};
+  const subjects = profile.subjects && profile.subjects.length ? profile.subjects : ['Mathematics','Physics','English'];
+  const hours    = +document.getElementById('aiHours').value;
+  const focus    = document.getElementById('aiFocus').value;
+  const start    = document.getElementById('startTime').value || '08:00';
+  const weak     = (profile.weakSubjects||'').split(',').map(s=>s.trim()).filter(Boolean);
+
+  let [h, m] = start.split(':').map(Number);
+  const slots = [];
+  const durations = [45, 30, 60, 45, 30]; // mix of session lengths
+  let totalMins = hours * 60;
+  let idx = 0;
+
+  while (totalMins > 0) {
+    const dur = Math.min(durations[idx % durations.length], totalMins);
+    if (dur < 20) break;
+    // Pick subject: give double weight to focus/weak
+    let pool = [...subjects];
+    if (focus && subjects.includes(focus)) pool.push(focus);
+    weak.forEach(w => { if (subjects.includes(w)) pool.push(w); });
+    const subj = pool[idx % pool.length];
+    const topicList = TOPICS[subj] || DEFAULT_TOPICS;
+    const topic = topicList[idx % topicList.length];
+
+    const timeStr = `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}`;
+    slots.push({ time: timeStr, subject: subj, topic, duration: dur, done: false });
+
+    m += dur;
+    if (m >= 60) { h += Math.floor(m/60); m = m % 60; }
+
+    // 10-min break after every 2 sessions
+    if ((idx+1) % 2 === 0 && totalMins > 30) {
+      m += 10; if (m >= 60) { h += Math.floor(m/60); m = m % 60; }
+      totalMins -= 10;
+    }
+    totalMins -= dur;
+    idx++;
+  }
+
+  DB.Schedules.save(currentUser.id, slots);
+  const out = document.getElementById('scheduleOutput');
+  if (out) out.innerHTML = renderScheduleRows(DB.Schedules.getByUser(currentUser.id));
+}
+
+function renderScheduleRows(schedule) {
+  return `
+  <div class="card" style="margin-top:1rem;">
+    <div class="card-title" style="justify-content:space-between;">
+      📅 Today's Study Schedule
+      <button class="btn btn-sm btn-outline" onclick="generateSchedule()">🔄 Regenerate</button>
+    </div>
+    <div class="timetable">
+      ${schedule.map(s => `
+      <div class="tt-row" id="tt-${s.id}">
+        <div class="tt-time">${s.time}</div>
+        <div style="width:8px;height:8px;border-radius:50%;background:#2D6A4F;flex-shrink:0;"></div>
+        <div class="tt-subject">${s.subject}</div>
+        <div class="tt-topic">${s.topic} <span style="color:#9CA3AF;">(${s.duration} min)</span></div>
+        <button class="tt-done ${s.done ? 'checked' : ''}" onclick="toggleTask(${s.id})" title="Mark done">${s.done ? '✓' : ''}</button>
+      </div>`).join('')}
+    </div>
+    <div style="margin-top:1rem;font-size:.82rem;color:#6B7280;">
+      ✅ ${schedule.filter(s=>s.done).length} / ${schedule.length} tasks completed today
+    </div>
+  </div>`;
+}
+
+function toggleTask(id) {
+  DB.Schedules.toggleDone(currentUser.id, id);
+  const updated = DB.Schedules.getByUser(currentUser.id);
+  const s = updated.find(x => x.id === id);
+  const row = document.getElementById('tt-' + id);
+  if (row && s) {
+    const btn = row.querySelector('.tt-done');
+    btn.classList.toggle('checked', s.done);
+    btn.textContent = s.done ? '✓' : '';
+  }
+}
+
+// ── 5. RECOMMENDATIONS ──────────────────────────────────────
+function renderRecommendations(el) {
+  const tests   = DB.Tests.getByUser(currentUser.id);
+  const profile = DB.Profiles.getByUser(currentUser.id) || {};
+  const weak    = (profile.weakSubjects||'').split(',').map(s=>s.trim()).filter(Boolean);
+
+  // AI logic: analyze test scores
+  const subjectScores = {};
+  tests.forEach(t => {
+    if (!subjectScores[t.subject]) subjectScores[t.subject] = [];
+    subjectScores[t.subject].push(t.pct);
+  });
+  const avgBySubject = Object.entries(subjectScores).map(([s,scores]) => ({
+    subject: s, avg: Math.round(scores.reduce((a,b)=>a+b,0)/scores.length)
+  })).sort((a,b)=>a.avg-b.avg);
+
+  const recs = [];
+  avgBySubject.forEach(({subject, avg}) => {
+    if (avg < 50) recs.push({ type:'urgent', subject, msg:`🔴 Critical: Score ${avg}% — Immediate focused revision needed`, action:'Intensive Practice' });
+    else if (avg < 70) recs.push({ type:'improve', subject, msg:`🟡 Needs improvement: Score ${avg}% — Practice more problems`, action:'Regular Practice' });
+    else recs.push({ type:'good', subject, msg:`🟢 Good: Score ${avg}% — Maintain with weekly revision`, action:'Light Revision' });
+  });
+  weak.forEach(w => {
+    if (!recs.find(r=>r.subject===w))
+      recs.push({ type:'weak', subject:w, msg:`⚠️ Self-marked as weak — Allocate extra study time`, action:'Focused Study' });
+  });
+  if (recs.length === 0) {
+    recs.push(
+      { type:'info', subject:'General', msg:'📖 Start by taking mock tests to get AI recommendations', action:'Take Test' },
+      { type:'info', subject:'Revision', msg:'📅 Regular spaced repetition improves memory retention by 40%', action:'Schedule Review' },
+      { type:'info', subject:'Focus', msg:'🍅 Try Pomodoro: 25 min study + 5 min break for better focus', action:'Try Today' },
+    );
+  }
+
+  el.innerHTML = `<div class="fade-in">
+  <div class="card">
+    <div class="card-title">💡 AI-Powered Study Recommendations</div>
+    <div class="alert alert-info" style="margin-bottom:1rem;">
+      Based on your test scores and study patterns, here are personalized suggestions:
+    </div>
+    ${recs.map(r => `
+    <div style="display:flex;align-items:center;justify-content:space-between;border:1.5px solid #E5E7EB;border-radius:12px;padding:1rem;margin-bottom:.8rem;background:#FAFAFA;">
+      <div>
+        <div style="font-weight:700;font-size:.9rem;">${r.subject}</div>
+        <div style="font-size:.83rem;color:#6B7280;margin-top:.2rem;">${r.msg}</div>
+      </div>
+      <button class="btn btn-sm btn-${r.type==='urgent'?'red':r.type==='good'?'outline':'primary'}" onclick="switchModule('schedule')">${r.action} →</button>
+    </div>`).join('')}
+  </div>
+
+  <div class="card">
+    <div class="card-title">📊 Subject Performance Analysis</div>
+    ${avgBySubject.length === 0 ? '<p style="font-size:.85rem;color:#9CA3AF;">Take mock tests to see subject-wise analysis here.</p>' :
+      `<table><thead><tr><th>Subject</th><th>Avg Score</th><th>Status</th><th>Action</th></tr></thead><tbody>
+      ${avgBySubject.map(({subject,avg})=>`
+      <tr>
+        <td><strong>${subject}</strong></td>
+        <td><strong>${avg}%</strong></td>
+        <td>${avg>=70?'<span class="tag tag-green">Good</span>':avg>=50?'<span class="tag tag-gold">Average</span>':'<span class="tag tag-red">Weak</span>'}</td>
+        <td><button class="btn btn-sm btn-outline" onclick="switchModule('quiz')">Practice →</button></td>
+      </tr>`).join('')}
+      </tbody></table>`}
+  </div>
+  </div>`;
+}
+
+// ── 6. REMINDERS ────────────────────────────────────────────
+function renderReminders(el) {
+  const reminders = DB.Reminders.getByUser(currentUser.id);
+  el.innerHTML = `<div class="fade-in">
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">➕ Add Reminder</div>
+      <div class="fg"><label>Reminder Title</label><input id="rTitle" placeholder="e.g. Physics Revision Session"/></div>
+      <div class="fg"><label>Date & Time</label><input type="datetime-local" id="rDatetime"/></div>
+      <div class="fg"><label>Type</label>
+        <select id="rType">
+          <option>Study Session</option><option>Exam Date</option><option>Assignment Due</option>
+          <option>Mock Test</option><option>Revision</option>
+        </select>
+      </div>
+      <div class="fg"><label>Notes</label><textarea id="rNotes" rows="2" placeholder="Optional notes..."></textarea></div>
+      <button class="btn btn-primary" onclick="addReminder()">🔔 Add Reminder</button>
+      <div id="reminderMsg" style="margin-top:.7rem;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title">📋 All Reminders (${reminders.length})</div>
+      ${reminders.length === 0 ? '<div class="alert alert-info">No reminders yet. Add your first one!</div>' :
+        reminders.map(r => `
+        <div style="border:1.5px solid ${r.done ? '#E5E7EB':'#BFDBFE'};border-radius:12px;padding:.9rem;margin-bottom:.6rem;background:${r.done ? '#F9FAFB':'#EFF6FF'};">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;">
+            <div>
+              <div style="font-weight:700;font-size:.88rem;${r.done?'text-decoration:line-through;color:#9CA3AF;':''}">${r.title}</div>
+              <div style="font-size:.75rem;color:#6B7280;">${r.type} · ${r.datetime||'No time set'}</div>
+              ${r.notes ? `<div style="font-size:.78rem;color:#9CA3AF;margin-top:.2rem;">${r.notes}</div>` : ''}
+            </div>
+            <div style="display:flex;gap:.4rem;">
+              ${!r.done ? `<button class="btn btn-sm btn-outline" onclick="dismissReminder(${r.id})">✓</button>` : ''}
+              <button class="btn btn-sm btn-red" onclick="deleteReminder(${r.id})">🗑</button>
+            </div>
+          </div>
+        </div>`).join('')}
+    </div>
+  </div>
+  </div>`;
+  updateNotifBadge();
+}
+
+function addReminder() {
+  const title = document.getElementById('rTitle').value.trim();
+  if (!title) return;
+  DB.Reminders.create({
+    userId: currentUser.id, title,
+    datetime: document.getElementById('rDatetime').value,
+    type: document.getElementById('rType').value,
+    notes: document.getElementById('rNotes').value,
+  });
+  renderReminders(document.getElementById('moduleContent'));
+}
+function dismissReminder(id) { DB.Reminders.dismiss(id, currentUser.id); if(activeModule==='reminders') renderReminders(document.getElementById('moduleContent')); else updateNotifBadge(); }
+function deleteReminder(id) { DB.Reminders.delete(id, currentUser.id); renderReminders(document.getElementById('moduleContent')); }
+
+// ── 7. MOCK TESTS & QUIZ ────────────────────────────────────
+let quizState = { questions:[], current:0, score:0, subject:'', answered:false };
+
+function renderQuiz(el) {
+  const profile  = DB.Profiles.getByUser(currentUser.id) || {};
+  const subjects = profile.subjects && profile.subjects.length ? profile.subjects : Object.keys(QUIZ_BANK);
+  const tests    = DB.Tests.getByUser(currentUser.id);
+
+  el.innerHTML = `<div class="fade-in">
+  <div class="grid2">
+    <div class="card" id="quizCard">
+      <div class="card-title">📝 Take a Quiz</div>
+      <div class="fg"><label>Select Subject</label>
+        <select id="quizSubject">${subjects.map(s=>`<option>${s}</option>`).join('')}</select>
+      </div>
+      <div class="fg"><label>Number of Questions</label>
+        <select id="quizCount"><option>5</option><option>10</option><option>15</option></select>
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()">🚀 Start Quiz</button>
+    </div>
+    <div class="card">
+      <div class="card-title">📊 Test History</div>
+      ${tests.length === 0 ? '<div class="alert alert-info">No tests taken yet.</div>' :
+        `<table><thead><tr><th>Subject</th><th>Score</th><th>%</th><th>Date</th></tr></thead><tbody>
+        ${tests.slice().reverse().slice(0,10).map(t=>`
+        <tr>
+          <td>${t.subject}</td>
+          <td>${t.score}/${t.total}</td>
+          <td><span class="${t.pct>=70?'tag-green':t.pct>=50?'tag-gold':'tag-red'} tag">${t.pct}%</span></td>
+          <td style="font-size:.75rem;color:#9CA3AF;">${new Date(t.createdAt).toLocaleDateString()}</td>
+        </tr>`).join('')}
+        </tbody></table>`}
+    </div>
+  </div>
+  <div id="quizArea"></div>
+  </div>`;
+}
+
+function startQuiz() {
+  const subject = document.getElementById('quizSubject').value;
+  const count   = +document.getElementById('quizCount').value;
+  const bank    = QUIZ_BANK[subject] || DEFAULT_QUIZ;
+  const questions = [...bank].sort(()=>Math.random()-.5).slice(0, Math.min(count, bank.length));
+  quizState = { questions, current:0, score:0, subject, answered:false };
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const { questions, current, score, subject } = quizState;
+  const area = document.getElementById('quizArea');
+  if (!area) return;
+  if (current >= questions.length) {
+    const pct = Math.round(score / questions.length * 100);
+    DB.Tests.save({ userId: currentUser.id, subject, score, total: questions.length, pct });
+    DB.Progress.log({ userId: currentUser.id, subject, pct, type:'quiz' });
+    area.innerHTML = `
+    <div class="card fade-in" style="text-align:center;margin-top:1rem;">
+      <div style="font-size:3rem;margin-bottom:.5rem;">${pct>=70?'🎉':pct>=50?'😊':'📚'}</div>
+      <h2 style="font-family:'DM Serif Display',serif;">${pct>=70?'Excellent!':pct>=50?'Good Job!':'Keep Practicing!'}</h2>
+      <p style="color:#6B7280;margin:.5rem 0 1.5rem;">You scored <strong>${score}/${questions.length}</strong> (${pct}%) in ${subject}</p>
+      <div style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+        <button class="btn btn-primary" onclick="startQuiz()">🔄 Try Again</button>
+        <button class="btn btn-outline" onclick="switchModule('recommendations')">💡 Get Tips</button>
+        <button class="btn btn-outline" onclick="switchModule('progress')">📈 View Progress</button>
+      </div>
+    </div>`;
+    return;
+  }
+  const q = questions[current];
+  quizState.answered = false;
+  area.innerHTML = `
+  <div class="card fade-in" style="margin-top:1rem;">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;">
+      <span style="font-size:.82rem;color:#6B7280;">Question ${current+1} of ${questions.length}</span>
+      <span class="tag tag-blue">${subject}</span>
+    </div>
+    <div class="prog-bar" style="margin-bottom:1.5rem;"><div class="prog-fill" style="width:${(current/questions.length*100)}%"></div></div>
+    <p style="font-size:1rem;font-weight:600;margin-bottom:1.2rem;">${q.q}</p>
+    <div id="options">
+      ${q.opts.map((opt,i)=>`
+      <button class="quiz-opt" onclick="selectOpt(${i})">${String.fromCharCode(65+i)}. ${opt}</button>`).join('')}
+    </div>
+    <div id="feedback" style="margin-top:1rem;display:none;"></div>
+  </div>`;
+}
+
+function selectOpt(chosen) {
+  if (quizState.answered) return;
+  quizState.answered = true;
+  const q = quizState.questions[quizState.current];
+  const correct = q.ans === chosen;
+  if (correct) quizState.score++;
+  const opts = document.querySelectorAll('.quiz-opt');
+  opts.forEach((btn, i) => {
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    else if (i === chosen && !correct) btn.classList.add('wrong');
+  });
+  const fb = document.getElementById('feedback');
+  fb.style.display = 'block';
+  fb.innerHTML = correct
+    ? '<div class="alert alert-success">✅ Correct! Well done.</div>'
+    : `<div class="alert" style="background:#FEF2F2;color:#DC2626;border:1px solid #FCA5A5;">❌ Incorrect. The correct answer is <strong>${q.opts[q.ans]}</strong>.</div>`;
+  setTimeout(() => { quizState.current++; renderQuestion(); }, 1800);
+}
+
+// ── 8. PROGRESS DASHBOARD ───────────────────────────────────
+function renderProgress(el) {
+  const tests    = DB.Tests.getByUser(currentUser.id);
+  const schedule = DB.Schedules.getByUser(currentUser.id);
+  const goals    = DB.Goals.getByUser(currentUser.id);
+
+  // Subject avg
+  const subjectMap = {};
+  tests.forEach(t => {
+    if (!subjectMap[t.subject]) subjectMap[t.subject] = [];
+    subjectMap[t.subject].push(t.pct);
+  });
+  const subjectAvg = Object.entries(subjectMap).map(([s,scores]) => ({
+    subject:s, avg: Math.round(scores.reduce((a,b)=>a+b,0)/scores.length), count: scores.length
+  }));
+
+  // Weekly trend (last 7 tests)
+  const weekly = tests.slice(-7).map(t => ({ d: new Date(t.createdAt).toLocaleDateString('en',{weekday:'short'}), v: t.pct }));
+  const overallAvg = tests.length ? Math.round(tests.reduce((a,t)=>a+t.pct,0)/tests.length) : 0;
+  const tasksDone  = schedule.filter(s=>s.done).length;
+  const goalsComp  = goals.filter(g=>g.completed).length;
+
+  el.innerHTML = `<div class="fade-in">
+  <div class="grid4" style="margin-bottom:1.5rem;">
+    <div class="stat-card"><div class="num">${overallAvg}%</div><div class="lbl">📊 Overall Avg Score</div></div>
+    <div class="stat-card"><div class="num">${tests.length}</div><div class="lbl">📝 Tests Taken</div></div>
+    <div class="stat-card"><div class="num">${tasksDone}</div><div class="lbl">✅ Tasks Completed</div></div>
+    <div class="stat-card"><div class="num">${goalsComp}/${goals.length}</div><div class="lbl">🎯 Goals Achieved</div></div>
+  </div>
+
+  <div class="grid2">
+    <div class="card">
+      <div class="card-title">📈 Test Score Trend (Last 7)</div>
+      ${weekly.length === 0 ? '<p style="font-size:.85rem;color:#9CA3AF;">Take some quizzes to see your trend.</p>' :
+        `<div class="bar-chart">
+          ${weekly.map(w=>`
+          <div class="bar-wrap">
+            <div class="bar-val">${w.v}%</div>
+            <div class="bar" style="height:${Math.max(8,w.v)}px;"></div>
+            <div class="bar-lbl">${w.d}</div>
+          </div>`).join('')}
+        </div>`}
+    </div>
+    <div class="card">
+      <div class="card-title">📚 Subject-wise Performance</div>
+      ${subjectAvg.length === 0 ? '<p style="font-size:.85rem;color:#9CA3AF;">No test data yet.</p>' :
+        subjectAvg.map(({subject,avg,count}) => `
+        <div style="margin-bottom:.8rem;">
+          <div style="display:flex;justify-content:space-between;font-size:.82rem;margin-bottom:.3rem;">
+            <span style="font-weight:600;">${subject}</span>
+            <span style="font-weight:700;color:${avg>=70?'#065F46':avg>=50?'#92400E':'#991B1B'}">${avg}% <span style="font-weight:400;color:#9CA3AF;">(${count} tests)</span></span>
+          </div>
+          <div class="prog-bar"><div class="prog-fill" style="width:${avg}%;background:${avg>=70?'linear-gradient(90deg,#065F46,#34D399)':avg>=50?'linear-gradient(90deg,#D97706,#FBBF24)':'linear-gradient(90deg,#991B1B,#F87171)'};"></div></div>
+        </div>`).join('')}
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-title">📅 Study Sessions Overview</div>
+    <div style="display:flex;gap:2rem;flex-wrap:wrap;">
+      <div style="text-align:center;">
+        <div style="--pct:${schedule.length?Math.round(tasksDone/schedule.length*360)+'deg':'0deg'};" class="donut">${schedule.length?Math.round(tasksDone/schedule.length*100):0}%</div>
+        <div style="font-size:.78rem;color:#6B7280;margin-top:.5rem;">Tasks Completed</div>
+      </div>
+      <div style="flex:1;">
+        <div style="font-size:.85rem;margin-bottom:1rem;color:#6B7280;">Goal Completion Breakdown</div>
+        ${goals.length === 0 ? '<p style="font-size:.82rem;color:#9CA3AF;">No goals tracked yet.</p>' :
+          goals.map(g=>`
+          <div style="display:flex;align-items:center;gap:.8rem;margin-bottom:.5rem;">
+            <div style="width:8px;height:8px;border-radius:50%;background:${g.completed?'#2D6A4F':'#E5E7EB'};flex-shrink:0;"></div>
+            <div style="font-size:.83rem;flex:1;">${g.title}</div>
+            <span class="${g.completed?'tag-green':'tag-blue'} tag" style="font-size:.7rem;">${g.completed?'✓ Done':'Pending'}</span>
+          </div>`).join('')}
+      </div>
+    </div>
+  </div>
+  </div>`;
+}
+
+// ── 9. REPORT GENERATION ────────────────────────────────────
+function renderReport(el) {
+  const tests   = DB.Tests.getByUser(currentUser.id);
+  const goals   = DB.Goals.getByUser(currentUser.id);
+  const schedule= DB.Schedules.getByUser(currentUser.id);
+  const profile = DB.Profiles.getByUser(currentUser.id) || {};
+  const subjectMap = {};
+  tests.forEach(t => {
+    if (!subjectMap[t.subject]) subjectMap[t.subject] = [];
+    subjectMap[t.subject].push(t.pct);
+  });
+  const subjectAvg = Object.entries(subjectMap).map(([s,scores]) => ({
+    subject:s, avg: Math.round(scores.reduce((a,b)=>a+b,0)/scores.length), count: scores.length
+  }));
+  const overallAvg = tests.length ? Math.round(tests.reduce((a,t)=>a+t.pct,0)/tests.length) : 0;
+
+  el.innerHTML = `<div class="fade-in">
+  <div class="card">
+    <div class="card-title" style="justify-content:space-between;">
+      📋 Performance Report
+      <button class="btn btn-primary btn-sm" onclick="printReport()">🖨️ Print / Save PDF</button>
+    </div>
+    <div id="reportContent">
+      <div style="border:2px solid #0D0D14;border-radius:16px;padding:2rem;background:#fff;">
+        <!-- Header -->
+        <div style="text-align:center;margin-bottom:1.5rem;padding-bottom:1rem;border-bottom:2px solid #0D0D14;">
+          <div style="font-family:'DM Serif Display',serif;font-size:1.8rem;">AI Smart Study Planner</div>
+          <div style="font-size:.85rem;color:#6B7280;margin-top:.3rem;">Student Performance Report</div>
+          <div style="font-size:.78rem;color:#9CA3AF;">Generated on ${new Date().toLocaleDateString('en-IN',{dateStyle:'long'})}</div>
+        </div>
+
+        <!-- Student Info -->
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:.8rem;color:#2D6A4F;">STUDENT INFORMATION</div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem;font-size:.85rem;">
+            <div><strong>Name:</strong> ${currentUser.name}</div>
+            <div><strong>Program:</strong> ${currentUser.program}</div>
+            <div><strong>Semester:</strong> ${currentUser.semester}</div>
+            <div><strong>Enrollment:</strong> ${profile.enrollment || 'N/A'}</div>
+            <div><strong>Study Hours/Day:</strong> ${profile.studyHours || 'N/A'} hrs</div>
+            <div><strong>Exam Date:</strong> ${profile.examDate || 'N/A'}</div>
+          </div>
+        </div>
+
+        <!-- Summary -->
+        <div style="margin-bottom:1.5rem;">
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:.8rem;color:#2D6A4F;">PERFORMANCE SUMMARY</div>
+          <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:.8rem;text-align:center;">
+            ${[
+              {v:overallAvg+'%', l:'Avg Score'},
+              {v:tests.length, l:'Tests Taken'},
+              {v:goals.filter(g=>g.completed).length+'/'+goals.length, l:'Goals Done'},
+              {v:schedule.filter(s=>s.done).length+'/'+schedule.length, l:'Tasks Done'}
+            ].map(s=>`<div style="border:1px solid #E5E7EB;border-radius:10px;padding:.8rem;">
+              <div style="font-size:1.4rem;font-weight:800;color:#2D6A4F;">${s.v}</div>
+              <div style="font-size:.72rem;color:#6B7280;">${s.l}</div>
+            </div>`).join('')}
+          </div>
+        </div>
+
+        <!-- Subject table -->
+        ${subjectAvg.length > 0 ? `
+        <div style="margin-bottom:1.5rem;">
+          
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:.8rem;color:#2D6A4F;">SUBJECT-WISE PERFORMANCE</div>
+          <table style="font-size:.82rem;">
+            <thead><tr><th>Subject</th><th>Tests</th><th>Avg %</th><th>Status</th></tr></thead>
+            <tbody>
+            ${subjectAvg.map(({subject,avg,count})=>`
+              <tr>
+                <td>${subject}</td><td>${count}</td>
+                <td style="font-weight:700;color:${avg>=70?'#065F46':avg>=50?'#92400E':'#991B1B'}">${avg}%</td>
+                <td>${avg>=70?'Excellent':avg>=50?'Average':'Needs Work'}</td>
+              </tr>`).join('')}
+            </tbody>
+          </table>
+        </div>` : '<div style="color:#9CA3AF;font-size:.85rem;margin-bottom:1rem;">No test data available yet.</div>'}
+
+        <!-- Goals -->
+        ${goals.length > 0 ? `
+        <div style="margin-bottom:1rem;">
+          <div style="font-weight:700;font-size:.9rem;margin-bottom:.8rem;color:#2D6A4F;">GOALS STATUS</div>
+          ${goals.map(g=>`<div style="display:flex;gap:.8rem;align-items:center;font-size:.83rem;margin-bottom:.4rem;">
+            <span>${g.completed?'✅':'⬜'}</span>
+            <span style="${g.completed?'text-decoration:line-through;color:#9CA3AF;':''}">${g.title}</span>
+            <span style="margin-left:auto;color:#9CA3AF;">${g.deadline||''}</span>
+          </div>`).join('')}
+        </div>` : ''}
+
+        <!-- Footer -->
+        <div style="text-align:center;font-size:.72rem;color:#9CA3AF;border-top:1px solid #E5E7EB;padding-top:1rem;margin-top:1rem;">
+          AI Smart Study Planner · Gaurav Joshi · BCA 6th Semester · USCS, Uttaranchal University
+        </div>
+      </div>
+    </div>
+  </div>
+  </div>`;
+}
+
+function printReport() {
+  const content = document.getElementById('reportContent').innerHTML;
+  const win = window.open('', '_blank');
+  win.document.write(`<html><head><title>Study Report</title>
+  <style>
+    body{font-family:sans-serif;padding:2rem;color:#0D0D14;}
+    table{width:100%;border-collapse:collapse;font-size:.82rem;}
+    th,td{padding:.5rem .8rem;border:1px solid #E5E7EB;}
+    th{background:#F9FAFB;}
+    @media print{body{padding:0;}}
+  </style></head><body>${content}</body></html>`);
+  win.document.close();
+  setTimeout(() => win.print(), 400);
+}
+
+// ── LOGOUT ──────────────────────────────────────────────────
+function logout() {
+  DB.Session.clear();
+  currentUser = null;
+  document.getElementById('dashboard').style.display = 'none';
+  document.getElementById('landing').style.display = 'block';
+}
+
+</script>
+</body>
+</html>
